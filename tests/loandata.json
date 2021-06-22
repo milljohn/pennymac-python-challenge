@@ -20,7 +20,8 @@
                     "addressState": "TX",
                     "addressPostalCode": "75028"
                 }
-            }
+            },
+            "shared_address": true
         }
     ],
     "property": {
