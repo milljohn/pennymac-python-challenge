@@ -47,7 +47,9 @@ def main(event, context=None):  # pylint: disable=unused-argument
 
     # Load all rules
     project = Project()
+    # print(project)
     rules = [rule for _ in project.resources.values() for rule in _]
+    # print(rules)
     logger.info('Service loaded rules: %s', json.dumps(rules, indent=2))
 
     # Confirm event is valid EventBridge -> SQS payload
@@ -60,6 +62,12 @@ def main(event, context=None):  # pylint: disable=unused-argument
                 'Service received invalid EventBridge event- Skipping event'
             )
             continue
+        # print(f'record type: {type(record)}')
+        # print(f'record: {record}')
+        # print(f"{type(record['detail'])}")
+        # print(f"{record['detail']}")
+        # detail = json.loads(record['detail'])
+        # print(f"applications: {detail['applications']}")
 
         # Attempt to load loandata
         try:
@@ -69,6 +77,9 @@ def main(event, context=None):  # pylint: disable=unused-argument
                 'Service received invalid event detail- Skipping event'
             )
             continue
+    # print(f'loans: {loans}')
+    # print(json.dumps(loans[0], indent=2))
+    #
 
     logger.info('Service recieved loans: %s', json.dumps(loans, indent=2))
 
@@ -76,16 +87,20 @@ def main(event, context=None):  # pylint: disable=unused-argument
     reports = []
     for loan in loans:
         manifest = JSONManifest(loan, rules)
+        # print(f'manifest: {manifest}')
+        # print(f'manifest.items: {manifest.items}')
         logger.info(
             'Generated manifest: %s', json.dumps(manifest.items, indent=2)
         )
 
+        # TODO: projection should return multiple residences only if they are different
         projection = JSONFactory(manifest).get_projection()
+        # print(f'projection: {projection}')
         logger.info(
             'Generated projection: %s', json.dumps(projection, indent=2)
         )
 
         reports.extend(projection.get('reports', []))
-
+        # print(f'reports: {reports}')
     # Reformat report output and return
     return {'reports': reports}

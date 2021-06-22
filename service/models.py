@@ -361,16 +361,36 @@ class JSONFactory:
 
         """
         queries, record = [], {}
+        temp_values = []
+        # print(f'type of queries: {type(queries)}')
+        # print(f'type of record: {type(record)}')
         for path, value in self._manifest:
 
+            # print(f'path: {path}')
+            # print(f'value: {value}')
             # Prioritize non-queries before queries
             if '?' in path:
+                if value not in temp_values:
+                    temp_values.append(value)
                 queries.append((path, value))
+
+                # queries.append((path, value))
+                # queries = list(set(queries))
                 continue
 
             self.insert_value(path, value, record)
 
+        # print(f'queries: {queries}')
+        # print(f'record: {record}')
         for path, value in queries:
             self.insert_query(path, value, record)
+
+        try:
+            residences = record["reports"][0]["residences"]
+            if len(residences) == 2 and residences[0] == residences[1]:
+                record["reports"][0]["residences"] = [residences[0]]
+                # print(residences[0] == residences[1])
+        except Exception as error:
+            logger.exception("Could not read reports due to %s", str(error))
 
         return record

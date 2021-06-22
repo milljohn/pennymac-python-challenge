@@ -47,6 +47,8 @@ if __name__ == '__main__':
     with open('loandata.json') as file:
         event = generate_event(json.load(file))
     response = main(event)
+    # print(event)
+    # print(json.dumps(response, indent=2))
 
     logger.info('Reports: %s', json.dumps(response, indent=2))
     with open('reports.json', 'w') as reports:
